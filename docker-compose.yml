@@ -1,0 +1,19 @@
+services:
+  app:
+    build: .
+    container_name: cf-app
+    ports:
+      - "5003:5001"
+    init: true
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:5001/health')"]
+      interval: 10s
+      timeout: 3s
+      start_period: 5s
+      retries: 3
+
+  redis:
+    image: redis:alpine
+    container_name: cf-redis
+    ports:
+      - "6379:6379"
