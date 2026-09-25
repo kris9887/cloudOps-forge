@@ -1,0 +1,23 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Build Docker image
+        run: docker build -t cloudops-forge .
+
+      - name: Run container and test health endpoint
+        run: |
+          docker run -d --name test-app -p 5001:5001 cloudops-forge
+          sleep 5
+          curl -f http://localhost:5001/health
