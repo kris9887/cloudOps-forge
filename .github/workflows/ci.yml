@@ -13,11 +13,34 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements-dev.txt
+
       - name: Build Docker image
         run: docker build -t cloudops-forge .
 
-      - name: Run container and test health endpoint
+      - name: Start container
+        run: docker run -d --name test-app -p 5001:5001 cloudops-forge
+
+      - name: Wait for app to be ready
         run: |
-          docker run -d --name test-app -p 5001:5001 cloudops-forge
-          sleep 5
-          curl -f http://localhost:5001/health
+          for i in $(seq 1 30); do
+            curl -sf http://localhost:5001/health && exit 0
+            sleep 1
+          done
+          echo "App did not become ready in 30s"
+          exit 1
+
+      - name: Install test dependencies
+        run: pip install -r requirements-dev.txt
+
+      - name: Run tests
+        run: pytest -v
+
+      - name: Show container logs on failure
+        if: failure()
+        run: docker logs test-app
