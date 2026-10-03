@@ -44,3 +44,17 @@ jobs:
       - name: Show container logs on failure
         if: failure()
         run: docker logs test-app
+
+      - name: Log in to GHCR
+        if: github.ref == 'refs/heads/main'
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Tag and push image
+        if: github.ref == 'refs/heads/main'
+        run: |
+          docker tag cloudops-forge ghcr.io/${{ github.repository_owner }}/cloudops-forge:latest
+          docker push ghcr.io/${{ github.repository_owner }}/cloudops-forge:latest
