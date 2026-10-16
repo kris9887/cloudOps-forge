@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: cloudops-forge
+spec:
+  selector:
+    app: cloudops-forge
+  ports:
+    - port: 5001
+      targetPort: 5001
