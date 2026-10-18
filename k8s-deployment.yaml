@@ -17,6 +17,9 @@ spec:
           image: ghcr.io/kris9887/cloudops-forge:latest
           ports:
             - containerPort: 5001
+          envFrom:
+            - configMapRef:
+                name: cloudops-forge-config
           readinessProbe:
             httpGet:
               path: /health
